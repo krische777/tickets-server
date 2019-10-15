@@ -1,6 +1,8 @@
 const { Router } = require('express')
 const Event = require('./model')
 const Ticket=require('../tickets/model')
+//import auth to make some functions available only for registered users
+const auth=require('../auth/middleware')
 
 const router = new Router()
 
