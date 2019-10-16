@@ -1,6 +1,6 @@
 const Sequelize=require('sequelize')
-
 const sequelize=require('../db')
+const Comment=require('../comments/model')
 
 const Ticket=sequelize.define('ticket', {
     author: {
@@ -20,5 +20,8 @@ const Ticket=sequelize.define('ticket', {
         allowNull:false
     }
 })
+Comment.belongsTo(Ticket)
+Ticket.hasMany(Comment)
 
 module.exports=Ticket
+

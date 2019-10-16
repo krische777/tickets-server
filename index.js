@@ -7,6 +7,7 @@ const userRouter=require('./user/router')
 const authRouter=require('./auth/router')
 const eventRouter=require('./events/router')
 const ticketRouter=require('./tickets/router')
+const commentRouter=require('./comments/router')
 
 const corsMiddleware = cors()
 app.use(corsMiddleware)
@@ -15,6 +16,7 @@ app.use(userRouter)
 app.use(authRouter)
 app.use(eventRouter)
 app.use(ticketRouter)
+app.use(commentRouter)
 
 app.get('/test', (request, response)=>response.send('hey hey'))
 
