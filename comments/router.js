@@ -15,7 +15,6 @@ router.get('/comment', (req, res, next) => {
          .catch(next)
 
 })
-//  //////////////////////////////////////////////////////////////////
 router.get('/event/:id/tickets/:ticketId/comment', (req, res, next) => {
     Comment
     .findAll( {
@@ -28,7 +27,6 @@ router.get('/event/:id/tickets/:ticketId/comment', (req, res, next) => {
     })
     .catch(next)
 })
-// ///////////////////////////////////////////////////////////////////
 const getUserIdFromJWT = (authorization) => {
     const auth = authorization && authorization.split(' ')
     if (auth && auth[0] === 'Bearer' && auth[1]) {
