@@ -3,7 +3,7 @@ const Event = require('./model')
 const Ticket=require('../tickets/model')
 //import auth to make some functions available only for registered users
 const auth=require('../auth/middleware')
-
+const {getFraudRisk} = require('../util/serverutility')
 const router = new Router()
 
 router.get('/event', (req, res, next) => {
@@ -22,9 +22,24 @@ router.get('/event', (req, res, next) => {
 router.get('/event/:id/tickets', (req, res, next)=>{
        Ticket.findAll({where: {
            eventId: req.params.id
-       } })
-       .then(tickets=>{
-           res.json(tickets)
+       }})
+       .then((tickets)=>{
+        //get an array of promises
+        const remappedTickets = tickets.map(async (ticket) => {
+                var fraudRisk = await getFraudRisk(ticket.id, req.params.id)
+                let remapped={id: ticket.id,
+                    author: ticket.author,
+                    price: ticket.price,
+                    description: ticket.description,
+                    picture: ticket.picture, 
+                    fraudRate: fraudRisk
+                }
+                return remapped
+          })
+          //wait for all promises to finish and then send the resulting array
+          Promise.all(remappedTickets).then(function(results) {
+            res.json(results)
+        })
        })
        .catch(next)
 })

@@ -4,7 +4,7 @@ const databaseUrl = process.env.DATABASE_URL || 'postgres://postgres:tickets-app
 
 const db = new Sequelize(databaseUrl)
 
-db.sync({force: false})
+db.sync({force: true})
     .then(()=> {
         const User=require('./user/model')
         const Comment=require('./comments/model')
