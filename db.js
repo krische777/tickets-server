@@ -4,7 +4,7 @@ const databaseUrl = process.env.DATABASE_URL || 'postgres://postgres:tickets-app
 
 const db = new Sequelize(databaseUrl)
 
-db.sync({force: true})
+db.sync({force: false})
     .then(()=> {
         const User=require('./user/model')
         const Comment=require('./comments/model')
@@ -31,6 +31,13 @@ db.sync({force: true})
             picture: 'some photo',
             startDate: 2019-10-24,
             endDate: 2019-10-24
+        });
+        Event.create({
+            eventName: 'Yoga ',
+            description:"Yoga outside",
+            picture: 'some photo',
+            startDate: 2019-10-15,
+            endDate: 2019-10-15
         });
         Ticket.create({
             author: 'test',

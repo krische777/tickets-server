@@ -72,84 +72,122 @@ router.post('/ticket', auth, (req, res, next) => {
 
 })
 
-
-router.get('/event/:id/tickets/:ticketId/fraudrisk', (req, res, next) => {
+router.put('/ticket/:ticketId', auth, (req, res, next) => {
+    console.log('description', req.body.description)
+    console.log('price', req.body.price)
+    console.log('picture', req.body.picture)
     Ticket.findOne({
         where: {
             id: req.params.ticketId,
         }
     })
         .then(currentTicket => {
-            //console.log('currentTicket', currentTicket)
-            let fraudRisk = 0
-            Ticket.count({
-                where: [{ author: currentTicket.author }]
-            })
-                .then(authorTickets => {
-                    //console.log('authorTickets', authorTickets)
-                    if (authorTickets < 2) {
-                        fraudRisk += 10
-                    }
-                    //console.log('fraudRisk 1', fraudRisk)
-
-                    Ticket.findAll({
-                        where: {
-                            eventId: req.params.id,
-                        },
-                        attributes: [[sequelize.fn('AVG', sequelize.col('price')), 'average']]
-                    })
-                        .then(avgPriceCurrentEvent => {
-                            //console.log('avgPriceCurrentEvent', avgPriceCurrentEvent[0].dataValues.average)
-                            //console.log('currentTicket.price', currentTicket.price)
-                            let avgAll = parseInt(avgPriceCurrentEvent[0].dataValues.average)
-                            if (currentTicket.price < avgAll) {
-                                let x
-                                x = (100 * (avgAll - currentTicket.price)) / avgAll
-                                //avgPriceCurrentEvent-x/100*avgPriceCurrentEvent==currentTicket.price
-                                fraudRisk += x
-                                //console.log('fraudRisk 2', fraudRisk)
-                            }
-                            else if (currentTicket.price > avgAll) {
-                                //    avgAll+x/100*avgAll==currentTicket
-                                //    x/100
-                                let x
-                                x = (100 * (currentTicket.price - avgAll)) / avgAll
-                                if (x > 10) x = 10
-                                fraudRisk -= x
-                            }
-                            //console.log('time added', currentTicket.createdAt)
-
-                            let date1 = currentTicket.createdAt
-                            //console.log('date 1', date1.getUTCHours())
-
-                            if (date1.getUTCHours() > 9 && date1.getUTCHours() < 17) {
-                                fraudRisk -= 10
-                            }
-                            else fraudRisk += 10
-
-                            Comment.count({
-                                where: [{ ticketId: currentTicket.id }]
+            const userId = getUserIdFromJWT(req.headers.authorization)
+            User
+                .findByPk(userId)
+                .then(user => {
+                    if (currentTicket.author == user.fullName) {
+                        Ticket.update({        
+                            description: req.body.description,
+                            price: req.body.price,
+                            picture: req.body.picture,
+                        }, {where: {
+                            id: req.params.ticketId,
+                        }})
+                        .then(() => {
+                            Ticket.findByPk(req.params.ticketId)
+                            .then(updatedTicket=>{
+                                res.status(200).json(updatedTicket)
                             })
-                                .then(ticketCount => {
-                                    if (ticketCount > 3) fraudRisk += 5
-
-                                    if (fraudRisk < 5) fraudRisk = 5
-
-                                    if (fraudRisk > 95) fraudRisk = 95
-
-                                    res.status(200).json(fraudRisk)
-                                })
-
-
-                            //res.send(fraudRisk)-does not work
-
+                            .catch(next)
                         })
                         .catch(next)
+                    }
+                    else { 
+                        res.status(400).end()
+                    }
                 })
                 .catch(next)
-            //res.json(tickets)
         })
         .catch(next)
-})
+    })
 
-module.exports = router
+    router.get('/event/:id/tickets/:ticketId/fraudrisk', (req, res, next) => {
+        Ticket.findOne({
+            where: {
+                id: req.params.ticketId,
+            }
+        })
+            .then(currentTicket => {
+                console.log('currentTicket', currentTicket)
+                let fraudRisk = 0
+                Ticket.count({
+                    where: [{ author: currentTicket.author }]
+                })
+                    .then(authorTickets => {
+                        //console.log('authorTickets', authorTickets)
+                        if (authorTickets < 2) {
+                            fraudRisk += 10
+                        }
+                        //console.log('fraudRisk 1', fraudRisk)
+
+                        Ticket.findAll({
+                            where: {
+                                eventId: req.params.id,
+                            },
+                            attributes: [[sequelize.fn('AVG', sequelize.col('price')), 'average']]
+                        })
+                            .then(avgPriceCurrentEvent => {
+                                //console.log('avgPriceCurrentEvent', avgPriceCurrentEvent.average)
+                                //console.log('avgPriceCurrentEvent', avgPriceCurrentEvent[0].dataValues.average)
+                                //console.log('currentTicket.price', currentTicket.price)
+                                let avgAll = Math.round(avgPriceCurrentEvent[0].dataValues.average)
+                                if (currentTicket.price < avgAll) {
+                                    let x = (100 * (avgAll - currentTicket.price)) / avgAll
+                                    //avgPriceCurrentEvent-x/100*avgPriceCurrentEvent==currentTicket.price
+                                    fraudRisk += x
+                                    //console.log('fraudRisk 2', fraudRisk)
+                                }
+                                else if (currentTicket.price > avgAll) {
+                                    //    avgAll+x/100*avgAll==currentTicket
+                                    //    x/100
+                                    let x = (100 * (currentTicket.price - avgAll)) / avgAll
+                                    if (x > 10) x = 10
+                                    fraudRisk -= x
+                                }
+                                //console.log('time added', currentTicket.createdAt)
+
+                                let date1 = currentTicket.createdAt
+                                console.log('date 1', date1.getUTCHours())
+
+                                if (date1.getUTCHours() >= 9 && date1.getUTCHours() <= 17) {
+                                    fraudRisk -= 10
+                                }
+                                else fraudRisk += 10
+
+                                Comment.count({
+                                    where: [{ ticketId: currentTicket.id }]
+                                })
+                                    .then(ticketCount => {
+                                        if (ticketCount > 3) fraudRisk += 5
+
+                                        if (fraudRisk < 5) fraudRisk = 5
+
+                                        if (fraudRisk > 95) fraudRisk = 95
+
+                                        res.status(200).json(Math.round(fraudRisk))
+                                    })
+
+
+                                //res.send(fraudRisk)-does not work
+
+                            })
+                            .catch(next)
+                    })
+                    .catch(next)
+                //res.json(tickets)
+            })
+            .catch(next)
+    })
+
+    module.exports = router
