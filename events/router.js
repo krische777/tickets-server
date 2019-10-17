@@ -5,8 +5,11 @@ const Ticket=require('../tickets/model')
 const auth=require('../auth/middleware')
 const {getFraudRisk} = require('../util/serverutility')
 const router = new Router()
+const sequelize = require('../db')
 
 router.get('/event', (req, res, next) => {
+    console.log('current date',new Date())
+    console.log('current date seq',sequelize.fn('NOW'))
     const limit=req.query.limit||9
     const offset=req.query.offset||0
     Event
@@ -14,14 +17,21 @@ router.get('/event', (req, res, next) => {
             limit, offset
         })
         .then(events =>{
-            res.status(200).send(events)
+            let recentEvents=[]
+            events.forEach(event => {
+                if(event.endDate >= new Date()){
+                    recentEvents.push(event)
+                }
+            });
+            res.status(200).send(recentEvents)
         })
         .catch(next)
 })
 
 router.get('/event/:id/tickets', (req, res, next)=>{
+
        Ticket.findAll({where: {
-           eventId: req.params.id
+           eventId: req.params.id,
        }})
        .then((tickets)=>{
         //get an array of promises
@@ -45,7 +55,7 @@ router.get('/event/:id/tickets', (req, res, next)=>{
 })
 
 
-router.post('/event', (req, res, next) => {
+router.post('/event', auth, (req, res, next) => {
     if (req.body.eventName) {
         Event
             .create(req.body)

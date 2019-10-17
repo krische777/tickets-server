@@ -12,11 +12,18 @@ db.sync({force: true})
         const Event=require('./events/model')
         console.log('database was synced')
         Event.create({
+            eventName: 'Wall Climbing',
+            description:"in West",
+            picture: 'https://rccl-h.assetsadobe.com/is/image/content/dam/royal/data/activity/rock-climbing-wall/anthem-rockwall-man-climbing-day-activity.jpg?$750x420$',
+            startDate: '2016-08-09 04:05:02',
+            endDate: '2016-08-09 04:05:02'
+        });
+        Event.create({
             eventName: 'House Party',
             description:"House Party in South park",
             picture: 'https://www.billboard.com/files/styles/768x433/public/media/ibiza-elrow-2019-billboard-1500.jpg',
-            startDate: 2019-10-25,
-            endDate: 2019-10-25
+            startDate: '2022-08-09 04:05:02',
+            endDate: '2023-08-09 04:05:02',
         });
         Event.create({
             eventName: 'Rock Party',

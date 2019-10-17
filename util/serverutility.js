@@ -27,9 +27,6 @@ function getFraudRisk(ticket_id, event_id){
                         attributes: [[sequelize.fn('AVG', sequelize.col('price')), 'average']]
                     })
                         .then(avgPriceCurrentEvent => {
-                            //console.log('avgPriceCurrentEvent', avgPriceCurrentEvent.average)
-                            //console.log('avgPriceCurrentEvent', avgPriceCurrentEvent[0].dataValues.average)
-                            //console.log('currentTicket.price', currentTicket.price)
                             let avgAll = Math.round(avgPriceCurrentEvent[0].dataValues.average)
                             if (currentTicket.price < avgAll) {
                                 let x = (100 * (avgAll - currentTicket.price)) / avgAll
