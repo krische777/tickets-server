@@ -10,11 +10,11 @@ const sequelize = require('../db')
 router.get('/event', (req, res, next) => {
     console.log('current date',new Date())
     console.log('current date seq',sequelize.fn('NOW'))
-    const limit=req.query.limit||9
-    const offset=req.query.offset||0
+    // const limit=req.query.limit||9
+    // const offset=req.query.offset||0
     Event
         .findAll({
-            limit, offset
+            // limit, offset
         })
         .then(events =>{
             let recentEvents=[]
