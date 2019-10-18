@@ -56,11 +56,18 @@ router.get('/event/:id/tickets', (req, res, next)=>{
 
 
 router.post('/event', auth, (req, res, next) => {
+    let newEvent = {
+        eventName: req.body.eventName,
+        picture: req.body.picture,
+        startDate: req.body.startDate,
+        endDate: req.body.endDate,
+        description: req.body.description,
+    }
     if (req.body.eventName) {
         Event
-            .create(req.body)
-            .then(events => {
-                res.status(200).send(events)
+            .create(newEvent)
+            .then(event => {
+                res.status(200).send(event)
             })
             .catch(next)
     }
