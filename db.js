@@ -4,7 +4,7 @@ const databaseUrl = process.env.DATABASE_URL || 'postgres://postgres:tickets-app
 
 const db = new Sequelize(databaseUrl)
 
-db.sync({force: true})
+db.sync({force: false})
     .then(()=> {
         const User=require('./user/model')
         const Comment=require('./comments/model')
@@ -29,22 +29,22 @@ db.sync({force: true})
             eventName: 'Rock Party',
             description:"Rock Party in Rooftop Bar",
             picture: 'http://romarestudio.com/wp-content/uploads/2018/10/artists-audience-band-1763075.jpg',
-            startDate: 2019-10-26,
-            endDate: 2019-10-26
+            startDate: '2019-10-19 04:05:02',
+            endDate: '2019-10-19 07:05:02'
         });
         Event.create({
             eventName: 'Cooking ',
             description:"Cooking with Mimi",
             picture: 'some photo',
-            startDate: 2019-10-24,
-            endDate: 2019-10-24
+            startDate: '2019-10-24 04:05:02',
+            endDate: '2019-10-19 04:05:02'
         });
         Event.create({
             eventName: 'Yoga ',
             description:"Yoga outside",
             picture: 'some photo',
-            startDate: 2019-10-15,
-            endDate: 2019-10-15
+            startDate: '2019-11-01 04:05:02',
+            endDate: '2019-11-01 07:05:02'
         });
         Ticket.create({
             author: 'test',
@@ -95,17 +95,17 @@ db.sync({force: true})
         });
         Comment.create({
             text: 'i look forward to this event',
-            author:'rrrrrrrr',
+            author:'krisi',
             ticketId:2
         });
         Comment.create({
             text: 'That will be awesome',
-            author:'rrrrrrrr',
+            author:'test',
             ticketId:2
         });
         Comment.create({
             text: 'So great',
-            author:'jumbo',
+            author:'test',
             ticketId:2
         });
 
